@@ -3,12 +3,12 @@
 remove_unwanted_packages() {
     local luci_packages=(
         "luci-app-passwall" "luci-app-ddns-go" "luci-app-rclone" "luci-app-ssr-plus"
-        "luci-app-vssr" "luci-app-daed" "luci-app-dae" "luci-app-alist" 
-        "luci-app-openclash" "luci-app-mihomo" "luci-app-appfilter"
-        "luci-app-msd_lite" "luci-app-unblockneteasemusic"
+        "luci-app-vssr" "luci-app-daed" "luci-app-dae" "luci-app-alist"
+        "luci-app-haproxy-tcp" "luci-app-openclash" "luci-app-mihomo" "luci-app-appfilter"
+        "luci-app-msd_lite" "luci-app-unblockneteasemusic" "luci-app-adguardhome"
     )
     local packages_net=(
-        "xray-core" "xray-plugin" "dns2socks" "alist" "hysteria"
+        "haproxy" "xray-core" "xray-plugin" "dns2socks" "alist" "hysteria"
         "mosdns" "adguardhome" "ddns-go" "naiveproxy" "shadowsocks-rust"
         "v2ray-core" "v2ray-geodata" "v2ray-plugin" "tuic-client"
         "chinadns-ng" "ipt2socks" "tcping" "trojan-plus" "simple-obfs" "shadowsocksr-libev"
@@ -76,7 +76,7 @@ install_small8() {
         v2dat mosdns luci-app-mosdns adguardhome luci-app-adguardhome ddns-go \
         luci-app-ddns-go taskd luci-lib-xterm luci-lib-taskd luci-app-store quickstart \
         luci-app-quickstart luci-app-istorex luci-app-cloudflarespeedtest netdata luci-app-netdata \
-        lucky luci-app-lucky luci-app-openclash luci-app-amlogic nikki luci-app-nikki \
+        lucky luci-app-lucky luci-app-openclash luci-app-amlogic \
         tailscale luci-app-tailscale oaf open-app-filter luci-app-oaf easytier luci-app-easytier \
         msd_lite luci-app-msd_lite cups luci-app-cupsd
 }
@@ -84,6 +84,11 @@ install_small8() {
 install_passwall() {
     echo "正在从官方仓库安装 luci-app-passwall..."
     ./scripts/feeds install -p passwall -f luci-app-passwall
+}
+
+install_nikki() {
+    echo "正在从官方仓库安装 nikki..."
+    ./scripts/feeds install -p nikki -f nikki luci-app-nikki
 }
 
 install_fullconenat() {
@@ -137,7 +142,6 @@ add_ax6600_led() {
         exit 1
     fi
 }
-
 
 add_timecontrol() {
     local timecontrol_dir="$BUILD_DIR/package/luci-app-timecontrol"
@@ -316,6 +320,7 @@ _sync_luci_lib_docker() {
 update_dockerman() {
     local path="$BUILD_DIR/feeds/luci/applications/luci-app-dockerman"
     local repo_url="https://github.com/lisaac/luci-app-dockerman.git"
+
     if [ -d "$path" ]; then
         echo "正在更新 dockerman..."
         _sync_luci_lib_docker || return
@@ -338,6 +343,10 @@ update_dockerman() {
         cd .. || return
         \rm -rf dockerman
         cd "$BUILD_DIR"
+
+        if declare -F docker_stack_sync_dockerman_nftables_compat >/dev/null 2>&1; then
+            docker_stack_sync_dockerman_nftables_compat "$BUILD_DIR" "0" || return 1
+        fi
 
         echo "dockerman 更新完成"
     fi
@@ -444,7 +453,7 @@ update_package() {
             local COMMIT_SHA
             local LS_REMOTE_OUTPUT
             LS_REMOTE_OUTPUT=$(git ls-remote "https://$PKG_GIT_URL_RAW" "refs/tags/${PKG_GIT_REF_TAG}" "refs/tags/${PKG_GIT_REF_TAG}^{}" 2>/dev/null)
-            COMMIT_SHA=$(echo "$LS_REMOTE_OUTPUT" | awk '/\^\{\}$/ {print $1; exit}')
+            COMMIT_SHA=$(echo "$LS_REMOTE_OUTPUT" | awk '/\^\{\}$/ {print $1}' exit)
             if [ -z "$COMMIT_SHA" ]; then
                 COMMIT_SHA=$(echo "$LS_REMOTE_OUTPUT" | awk 'NR==1{print $1}')
             fi
