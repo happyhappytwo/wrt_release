@@ -19,7 +19,7 @@ remove_unwanted_packages() {
     )
     local small8_packages=(
         "ppp" "firewall" "dae" "daed" "daed-next" "libnftnl" "nftables" "dnsmasq" "luci-app-alist"
-        "alist" "opkg" "smartdns" "luci-app-smartdns" "easytier"
+        "alist" "opkg" "easytier"
     )
 
     for pkg in "${luci_packages[@]}"; do
@@ -236,29 +236,7 @@ update_lucky() {
     fi
 }
 
-update_smartdns() {
-    local SMARTDNS_REPO="https://github.com/ZqinKing/openwrt-smartdns.git"
-    local SMARTDNS_DIR="$BUILD_DIR/feeds/packages/net/smartdns"
-    local LUCI_APP_SMARTDNS_REPO="https://github.com/pymumu/luci-app-smartdns.git"
-    local LUCI_APP_SMARTDNS_DIR="$BUILD_DIR/feeds/luci/applications/luci-app-smartdns"
 
-    echo "正在更新 smartdns..."
-    rm -rf "$SMARTDNS_DIR"
-    if ! git clone --depth=1 "$SMARTDNS_REPO" "$SMARTDNS_DIR"; then
-        echo "错误：从 $SMARTDNS_REPO 克隆 smartdns 仓库失败" >&2
-        exit 1
-    fi
-
-    install -Dm644 "$BASE_PATH/patches/100-smartdns-optimize.patch" "$SMARTDNS_DIR/patches/100-smartdns-optimize.patch"
-    sed -i '/define Build\/Compile\/smartdns-ui/,/endef/s/CC=\$(TARGET_CC)/CC="\$(TARGET_CC_NOCACHE)"/' "$SMARTDNS_DIR/Makefile"
-
-    echo "正在更新 luci-app-smartdns..."
-    rm -rf "$LUCI_APP_SMARTDNS_DIR"
-    if ! git clone --depth=1 "$LUCI_APP_SMARTDNS_REPO" "$LUCI_APP_SMARTDNS_DIR"; then
-        echo "错误：从 $LUCI_APP_SMARTDNS_REPO 克隆 luci-app-smartdns 仓库失败" >&2
-        exit 1
-    fi
-}
 
 update_diskman() {
     local path="$BUILD_DIR/feeds/luci/applications/luci-app-diskman"
