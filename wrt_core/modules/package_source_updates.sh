@@ -154,40 +154,7 @@ _sync_luci_lib_docker() {
 }
 
 
-update_dockerman() {
-    local path="$BUILD_DIR/feeds/luci/applications/luci-app-dockerman"
-    local repo_url="https://github.com/lisaac/luci-app-dockerman.git"
 
-    if [ -d "$path" ]; then
-        echo "正在更新 dockerman..."
-        _sync_luci_lib_docker || return
-
-        cd "$BUILD_DIR/feeds/luci/applications" || return
-        \rm -rf "luci-app-dockerman"
-
-        if ! git_retry clone --filter=blob:none --no-checkout "$repo_url" dockerman; then
-            echo "错误：从 $repo_url 克隆 dockerman 仓库失败" >&2
-            exit 1
-        fi
-        cd dockerman || return
-
-        git_retry sparse-checkout init --cone
-        git_retry sparse-checkout set applications/luci-app-dockerman || return
-
-        git_retry checkout --quiet
-
-        mv applications/luci-app-dockerman ../luci-app-dockerman || return
-        cd .. || return
-        \rm -rf dockerman
-        cd "$BUILD_DIR"
-
-        if declare -F docker_stack_sync_dockerman_nftables_compat >/dev/null 2>&1; then
-            docker_stack_sync_dockerman_nftables_compat "$BUILD_DIR" "0" || return 1
-        fi
-
-        echo "dockerman 更新完成"
-    fi
-}
 
 
 add_quickfile() {
