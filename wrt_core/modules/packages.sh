@@ -158,7 +158,7 @@ install_custom_feed() {
         msd_lite luci-app-msd_lite cups luci-app-cupsd luci-app-unblockmusic
     )
     local required_feed_dirs=(
-        cups tcping v2ray-geodata luci-lib-taskd luci-app-openclash
+        cups tcping v2ray-geodata luci-lib-taskd luci-app-openclash luci-app-unblockmusic
         luci-app-quickstart luci-app-store luci-app-mosdns
         luci-app-passwall nikki luci-app-nikki mihomo-meta
         open-app-filter luci-app-oaf lucky luci-app-lucky luci-app-easytier
